@@ -7,6 +7,7 @@ try:
     import tkinter
 except ImportError:
     import Tkinter as tkinter
+import src.schedule
 
 def main(resource_path):
     '''Called when package is run.'''
