@@ -2,8 +2,7 @@
 Main package file.
 '''
 
-from inspect import getsourcefile
-import os
+import sys
 import src.app
 
-src.app.main(os.path.dirname(getsourcefile(lambda: 0)))
+src.app.main(sys.argv[0])
