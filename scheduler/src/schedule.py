@@ -22,17 +22,18 @@ def stringtime(abs_time):
 class Schedule:
     def __init__(self, filename=None):
         '''Prepares lists, retrieves data from file if applicable.'''
+        self.filename = filename
         if filename:
-            self.deserialize(filename)
+            self.deserialize()
         else:
             self.profs = []
             self.courses = []
             self.descs = {}
             self.classes = []
 
-    def serialize(self, filename):
+    def serialize(self):
         '''Serializes schedule.'''
-        fp = open(filename, 'wb')
+        fp = open(self.filename, 'wb')
         for x in self.courses:
             fp.write((x + '\n').encode('ascii'))
             fp.write((self.descs[x] + '\n').encode('ascii'))
@@ -44,13 +45,13 @@ class Schedule:
             fp.write(x.to_bytes())
         fp.write('\x00\x00\x00'.encode('ascii'))
 
-    def deserialize(self, filename):
+    def deserialize(self):
         '''Deserializes file data into schedule.'''
         self.profs = []
         self.courses = []
         self.descs = {}
         self.classes = []
-        fp = open(filename, 'rb')
+        fp = open(self.filename, 'rb')
         while True:
             self.courses.append(str(fp.readline()[:-1], 'ascii'))
             if self.courses[-1] == '':

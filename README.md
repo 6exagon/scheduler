@@ -16,6 +16,10 @@ Download and extract the .zip file for this project, and the python package can 
 
 `$ python3 scheduler` or `$ python scheduler`
 
+If the above fail on Windows, try:
+
+`$ py -3 scheduler` or `$ py -2 scheduler`
+
 #### macOS Application Setup
 
 Download and extract the .zip file for this project and run the build script:
