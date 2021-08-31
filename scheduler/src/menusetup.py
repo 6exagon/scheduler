@@ -37,6 +37,7 @@ def setup(root):
         root.createcommand('tkAboutDialog', src.app.about)
         root.createcommand('::tk::mac::ShowHelp', src.app.helpmenu)
         root.createcommand('::tk::mac::OpenDocument', src.app.open_file)
+        root.createcommand('::tk::mac::Quit', src.app.close)
 
     menubar = tkinter.Menu(root)
     filemenu = tkinter.Menu(menubar, name='file', tearoff=0)

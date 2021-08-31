@@ -20,24 +20,38 @@ import src.menusetup
 schedule = src.schedule.Schedule()
 
 def newdialog(evt=None):
-    pass
+    '''Clears schedule.'''
+    global schedule
+    if save_continue():
+        schedule = src.schedule.Schedule()
 
 def opendialog(evt=None):
     '''Calls open_file with filename chosen by file dialog.'''
     open_file(filedialog.askopenfilename(filetypes = [('Schedule','*.schd')]))
 
 def save(evt=None):
-    pass
+    '''Serializes schedule, or calls saveas if schedule has no filename.'''
+    if schedule.filename:
+        schedule.serialize()
+    else:
+        saveas()
 
 def saveas(evt=None):
-    pass
+    '''Saves schedule under new filename.'''
+    filename = filedialog.asksaveasfilename(
+        defaultextension='.schd',
+        filetypes=[('Schedule', '*.schd')])
+    if len(filename):
+        schedule.filename = filename
+        save()
 
 def export(evt=None):
     pass
 
 def close(evt=None):
-    '''Closes program.'''
-    raise SystemExit
+    '''Closes program after save prompt.'''
+    if save_continue():
+        t.destroy()
 
 def undo(evt=None):
     pass
@@ -66,23 +80,36 @@ def about(evt=None):
     messagebox.showinfo('About Scheduler', text)
 
 def open_file(*files):
-    '''Called either by macOS or opendialog, opens and saves first filename.'''
+    '''Called either by macOS or opendialog, opens first filename.'''
     global schedule
-    try:
-        schedule = src.schedule.Schedule(files[0])
-    except:
-        messagebox.showerror('', 'Unable to read file.')
-    if len(files) > 1:
-        messagebox.showerror('', 'Cannot open more than one file at once.')
+    if save_continue() and len(files[0]):
+        try:
+            schedule = src.schedule.Schedule(files[0])
+        except:
+            messagebox.showerror('', 'Unable to read file.')
+        if len(files) > 1:
+            messagebox.showerror('', 'Cannot open more than one file at once.')
+
+def save_continue():
+    '''Prompts user to save file, returns whether operation should proceed.'''
+    if schedule.filename:
+        answer = messagebox.askyesnocancel('', 'Save file before continuing?')
+        if answer:
+            save()
+        elif answer == None:
+            return False
+    return True
 
 def main(res_path):
     '''Called when package is run.'''
     global resource_path
+    global t
     resource_path = res_path
     t = tkinter.Tk()
     imgpath = os.path.join(resource_path, 'images', 'icon.gif')
     img = tkinter.PhotoImage(file=imgpath)
     t.call('wm', 'iconphoto', t._w, img)
+    t.protocol("WM_DELETE_WINDOW", close)
     t.title('Scheduler')
     t.resizable(0, 0)
     src.menusetup.setup(t)

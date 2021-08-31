@@ -4,6 +4,12 @@ Schedule class manages and serializes/deserializes schedule.
 
 import src.sclass
 
+def string(data):
+    try:
+        return str(data, 'ascii')
+    except TypeError:
+        return str(data)
+
 def abstime(time_string):
     '''Returns time in minutes since 8:00 divided by 10.'''
     timelist = [int(x) for x in time_string.split(':')]
@@ -41,8 +47,12 @@ class Schedule:
         for x in self.profs:
             fp.write((x + '\n').encode('ascii'))
         fp.write('\n'.encode('ascii'))
-        for x in self.classes:
-            fp.write(x.to_bytes())
+        try:
+            for x in self.classes:
+                fp.write(x.to_str())
+        except TypeError:
+            for x in self.classes:
+                fp.write(x.to_bytes())
         fp.write('\x00\x00\x00'.encode('ascii'))
 
     def deserialize(self):
@@ -53,18 +63,18 @@ class Schedule:
         self.classes = []
         fp = open(self.filename, 'rb')
         while True:
-            self.courses.append(str(fp.readline()[:-1], 'ascii'))
+            self.courses.append(string(fp.readline()[:-1]))
             if self.courses[-1] == '':
                 del self.courses[-1]
                 break
-            self.descs[self.courses[-1]] = str(fp.readline()[:-1], 'ascii')
+            self.descs[self.courses[-1]] = string(fp.readline()[:-1])
         while True:
-            self.profs.append(str(fp.readline()[:-1], 'ascii'))
+            self.profs.append(string(fp.readline()[:-1]))
             if self.profs[-1] == '':
                 del self.profs[-1]
                 break
         while True:
-            course_number = str(fp.read(3), 'ascii')
+            course_number = string(fp.read(3))
             if course_number == '\x00\x00\x00':
                 break
             self.classes.append(src.sclass.Class(course_number, *fp.read(4)))
