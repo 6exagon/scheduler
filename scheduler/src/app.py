@@ -4,6 +4,8 @@ Main entry point of program, handles code at top level.
 
 import os
 import webbrowser
+import platform
+import sys
 try:
     import tkinter
     from tkinter import ttk
@@ -16,8 +18,7 @@ except ImportError:
     import tkMessageBox as messagebox
 import src.schedule
 import src.menusetup
-
-schedule = src.schedule.Schedule()
+import src.panels
 
 def newdialog(evt=None):
     '''Clears schedule.'''
@@ -103,17 +104,34 @@ def save_continue():
 def main(res_path):
     '''Called when package is run.'''
     global resource_path
+    global schedule
     global t
     resource_path = res_path
+    schedule = src.schedule.Schedule()
     t = tkinter.Tk()
-    imgpath = os.path.join(resource_path, 'images', 'icon.gif')
-    img = tkinter.PhotoImage(file=imgpath)
+    imgpath = os.path.join(resource_path, 'images')
+    img = tkinter.PhotoImage(file=os.path.join(imgpath, 'icon.gif'))
     t.call('wm', 'iconphoto', t._w, img)
-    t.protocol("WM_DELETE_WINDOW", close)
+    t.protocol('WM_DELETE_WINDOW', close)
     t.title('Scheduler')
     t.resizable(0, 0)
     src.menusetup.setup(t)
-    canvas = tkinter.Canvas(t, width=260, height=260, bg='#ddd')
-    canvas.pack()
-    canvas.create_image(130, 130, image=img, anchor='center')
+    if platform.system() == 'Darwin' and sys.version_info[0] == 2:
+        style = ttk.Style()
+        style.configure('TNotebook.Tab', padding=(10, 8, 10, 0))
+    notebook = ttk.Notebook(t)
+    notebook.pack()
+    bighex = tkinter.PhotoImage(file=os.path.join(imgpath, 'hex.gif'))
+    heximg = bighex.subsample(2, 2)
+    panels = {}
+    for x in ('Courses', 'Instructors', 'Classes', 'Schedule'):
+        panels[x] = src.panels.SearchPanel(bighex, x, notebook, 400)
+    panels['Courses'].add_infobar('Taught By:')
+    panels['Courses'].set_infobar_text('Taught By:', ['PROF_1', 'PROF_2'])
+    panels['Courses'].add_search_bar('Courses', heximg)
+    panels['Instructors'].add_infobar('Teaches:')
+    panels['Instructors'].set_infobar_text('Teaches:', ['001', '002'])
+    panels['Instructors'].add_search_bar('Instructors', heximg)
+    panels['Classes'].add_search_bar('Courses', heximg)
+    panels['Classes'].add_search_bar('Instructors', heximg)
     t.mainloop()

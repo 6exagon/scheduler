@@ -2,9 +2,8 @@
 Schedule class manages and serializes/deserializes schedule.
 '''
 
-import src.sclass
-
 def string(data):
+    '''Returns string from data, with support for Python 2 and 3.'''
     try:
         return str(data, 'ascii')
     except TypeError:
@@ -77,4 +76,29 @@ class Schedule:
             course_number = string(fp.read(3))
             if course_number == '\x00\x00\x00':
                 break
-            self.classes.append(src.sclass.Class(course_number, *fp.read(4)))
+            self.classes.append(Class(course_number, *fp.read(4)))
+
+class Class:
+    def __init__(self, course, prof_id, abstime, season_byte, days):
+        '''Sets all fields to specified values.'''
+        self.course = course
+        try:
+            self.prof_id = prof_id
+            self.abstime = abstime
+            self.season = chr(season_byte)
+            self.days = days
+        except TypeError:
+            self.prof_id = ord(prof_id)
+            self.abstime = ord(abstime)
+            self.season = season_byte
+            self.days = ord(days)
+
+    def to_bytes(self):
+        '''Returns binary representation of class (for Python 3).'''
+        data = [self.prof_id, self.abstime, ord(self.season), self.days]
+        return self.course.encode('ascii') + bytes(data)
+
+    def to_str(self):
+        '''Returns string representation of class (for Python 2).'''
+        data = [self.prof_id, self.abstime, ord(self.season), self.days]
+        return self.course + ''.join([chr(x) for x in data])

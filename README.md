@@ -8,6 +8,8 @@ A simple schedule editor designed for handling course scheduling written for Pyt
 
 This project only uses Python 2/3 and the Standard Library, so no need for any building or installing of third-party software. This project is also cross-platform, and runs on Windows, macOS, and Linux.
 
+Also, Tk 8.5+ is required, but this is usually bundled in preinstalled or first-party distributions of Python.
+
 ### Installation & Use
 
 #### Basic Cross-Platform Setup
